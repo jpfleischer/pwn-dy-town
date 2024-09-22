@@ -5,6 +5,8 @@ ideas
     make a random offset timer to stand and resit pony during intervals of 1 - 14mins 
         2 - sit 
         3 - stand 
+        O - zoom out 
+        p - zoom in 
 
 get ALT cookies instead of main
     dress up ALT in some random fucking fandom outfit 
