@@ -20,7 +20,7 @@ def main():
     )
 
     # Start overlay.py in WSL
-    overlay_process = run_script('overlay/overlay.py', use_wsl=True)
+    # overlay_process = run_script('overlay/overlay.py', use_wsl=True)
 
     # Start scraper.py using the specified Python interpreter
     cool_process = run_script(
@@ -30,7 +30,7 @@ def main():
 
     # Wait for all processes to complete
     grabber_process.wait()
-    overlay_process.wait()
+    # overlay_process.wait()
     cool_process.wait()
 
 if __name__ == "__main__":

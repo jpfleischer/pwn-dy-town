@@ -71,7 +71,7 @@ settings_link.click()
 file_input = WebDriverWait(driver, 20).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
 )
-time.sleep(3)
+time.sleep(1)
 print('sending file path now')
 
 # Get the current directory and construct the file path

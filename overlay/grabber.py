@@ -6,21 +6,18 @@ import win32gui
 import win32ui
 from ctypes import windll
 from PIL import Image
+from datetime import datetime
 
 def get_next_output_filename(directory, prefix):
     # Ensure the directory exists
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Find all files matching the pattern prefix-*.png
-    files = glob.glob(os.path.join(directory, f"{prefix}-*.png"))
-    if not files:
-        return os.path.join(directory, f"{prefix}-1.png")
-
-    # Extract numbers from filenames and find the highest number
-    numbers = [int(re.search(rf"{prefix}-(\d+).png", os.path.basename(f)).group(1)) for f in files]
-    next_number = max(numbers) + 1
-    return os.path.join(directory, f"{prefix}-{next_number}.png")
+    # Get the current timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Return the filename with the timestamp
+    return os.path.join(directory, f"{prefix}-{timestamp}.png")
 
 def take_screenshot(output_file, window_title):
     # Find the window with the specified title
@@ -91,7 +88,7 @@ def main():
         # Find the window with the specified partial titles
         hwnd = find_window_with_title_partials(partial_titles)
         if hwnd:
-            # Generate the next output filename
+            # Generate the output filename with a timestamp
             output_file = get_next_output_filename(directory, prefix)
             # Take the screenshot
             take_screenshot(output_file, win32gui.GetWindowText(hwnd))
