@@ -1,0 +1,16 @@
+run: stop
+	-docker network create ponynetwork
+	docker build -t db-image .
+	docker run --name db -v mysql-data:/var/lib/mysql \
+	--network=ponynetwork \
+	-p 3306:3306 -d db-image
+
+stop down:
+	-docker stop db
+	-docker rm db
+
+shell:
+	docker exec -it db bash
+
+logs:
+	docker logs db\
