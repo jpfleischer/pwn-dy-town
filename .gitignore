@@ -1,1 +1,8 @@
 cookies.json
+*.png
+*.yaml
+darknet/
+*json
+*.jpg
+*.txt
+*.pyc
