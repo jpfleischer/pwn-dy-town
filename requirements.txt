@@ -1,3 +1,4 @@
 pillow
 pytesseract
 selenium
+mysql-connector-python

@@ -13,4 +13,7 @@ shell:
 	docker exec -it db bash
 
 logs:
-	docker logs db\
+	docker logs db
+
+exec-script:
+	docker exec -it db //bin//bash -c "mysql -u root -prootpassword mydatabase < /docker-entrypoint-initdb.d/script.sql"

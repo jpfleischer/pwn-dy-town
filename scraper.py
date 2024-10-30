@@ -7,6 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import json
 import time
 import os
+import mysql.connector
 
 # Load saved cookies from the JSON file
 with open('cookies.json', 'r') as file:
@@ -83,17 +84,8 @@ const observer = new MutationObserver((mutations) => {
         mutation.addedNodes.forEach((node) => {
             if (node.classList && node.classList.contains('chat-line')) {
                 const now = new Date();
-                const time = new Intl.DateTimeFormat('en-US', {
-                    timeZone: 'America/New_York',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                }).format(now);
-
+                const time = now.toISOString().slice(0, 19).replace('T', ' ');
+                   
                 // Extract and replace emoji <img> tags with their alt text in the name content
                 let name = node.querySelector('.chat-line-name-content').innerHTML;
                 name = name.replace(/<img[^>]*alt="([^"]*)"[^>]*>/g, (match, alt) => alt);
@@ -118,11 +110,6 @@ window.getChatLines = () => {
 # Execute the JavaScript code
 driver.execute_script(mutation_observer_script)
 
-# Function to check for duplicates in the existing chat lines
-def remove_duplicates(new_lines, existing_lines):
-    existing_set = {(line['time'], line['name'], line['message']) for line in existing_lines}
-    return [line for line in new_lines if (line['time'], line['name'], line['message']) not in existing_set]
-
 
 # Function to press a key using Selenium ActionChains
 def press_key(key):
@@ -135,10 +122,43 @@ def press_key(key):
 interval_duration = 14 * 60
 check_interval = 30  # Interval to check chat lines (30 seconds)
 
+# Database connection details
+db_config = {
+    'user': 'myuser',
+    'password': 'mypassword',
+    'host': 'localhost',
+    'database': 'mydatabase'
+}
+
+# Function to remove duplicates
+def remove_duplicates(new_chat_lines, existing_chat_lines):
+    existing_set = {json.dumps(line) for line in existing_chat_lines}
+    return [line for line in new_chat_lines if json.dumps(line) not in existing_set]
+
+# Function to insert chat lines into the database
+def insert_chat_lines_to_db(chat_lines):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        for line in chat_lines:
+            cursor.execute("""
+                INSERT INTO messages (content, sender, timestamp, coordinates)
+                VALUES (%s, %s, %s, ST_GeomFromText(%s))
+            """, (line['message'], line['name'], line['time'], 'POINT(0 0)'))
+
+        connection.commit()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
 # Start an infinite loop to alternate between pressing 'D' and 'A'
 while True:
-    # Alternate between pressing 'D' and 'A'
-    for key in ['d', 'a']:
+    # Alternate between pressing '2' and '3'
+    for key in ['2', '3']:
         # 14-minute loop
         for _ in range(0, interval_duration, check_interval):
             # Retrieve the chat lines collected by the MutationObserver
@@ -157,16 +177,16 @@ while True:
 
                 if new_chat_lines:
                     # Append new chat lines to the existing chat lines
-                    existing_chat_lines.extend(new_chat_lines)
+                     insert_chat_lines_to_db(new_chat_lines)
 
                     # Save the updated chat lines to the JSON file
-                    with open('chat_lines.json', 'w', encoding='utf-8') as file:
-                        json.dump(existing_chat_lines, file, ensure_ascii=False, indent=4)
+                    # with open('chat_lines.json', 'w', encoding='utf-8') as file:
+                        # json.dump(existing_chat_lines, file, ensure_ascii=False, indent=4)
 
-                    print(f'Added {len(new_chat_lines)} new chat lines.')
+                     print(f'Added {len(new_chat_lines)} new chat lines.')
 
             # Wait for the next 30 seconds to check chat lines again
             time.sleep(check_interval)
         
-        # After 14 minutes, press the key ('D' or 'A')
+        # After 14 minutes, press the key ('2' or '3')
         press_key(key)
