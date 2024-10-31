@@ -2,3 +2,4 @@ pillow
 pytesseract
 selenium
 mysql-connector-python
+pyautogui; sys_platform == "linux"

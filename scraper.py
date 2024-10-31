@@ -1,20 +1,45 @@
+import platform
+import os
+import json
+import time
+import mysql.connector
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-import json
-import time
-import os
-import mysql.connector
 
 # Load saved cookies from the JSON file
 with open('cookies.json', 'r') as file:
     cookies = json.load(file)
 
-# Start a new Firefox WebDriver session
-driver = webdriver.Firefox()
+# Determine the OS and set up the appropriate WebDriver
+if platform.system() == 'Linux':
+    # Use Chrome WebDriver with custom chromedriver path
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.chrome.options import Options
+
+    # Path to your chromedriver
+    chrome_driver_path = '/usr/bin/chromedriver'  # Adjust this path if necessary
+
+    # Set Chrome options
+    chrome_options = Options()
+    # Uncomment the following line to run in headless mode
+    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--remote-debugging-port=9222")
+    chrome_options.add_argument("--display=:1")  # Specify display if needed
+
+    # Set up the Chrome WebDriver with the service parameter and options
+    service = Service(chrome_driver_path)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+else:
+    # Use Firefox WebDriver
+    driver = webdriver.Firefox()
 
 # Open the base domain (needed to add cookies)
 driver.get('https://pony.town')
@@ -83,7 +108,7 @@ print('OK button clicked')
 time.sleep(1)
 
 # Activate the page (just in case)
-webdriver.ActionChains(driver).send_keys(Keys.F6).perform()
+ActionChains(driver).send_keys(Keys.F6).perform()
 
 # JavaScript code to use MutationObserver to watch for new chat lines and extract details
 mutation_observer_script = """
@@ -118,7 +143,6 @@ window.getChatLines = () => {
 
 # Execute the JavaScript code
 driver.execute_script(mutation_observer_script)
-
 
 # Function to press a key using Selenium ActionChains
 def press_key(key):
@@ -164,7 +188,7 @@ def insert_chat_lines_to_db(chat_lines):
             cursor.close()
             connection.close()
 
-# Start an infinite loop to alternate between pressing 'D' and 'A'
+# Start an infinite loop to alternate between pressing '2' and '3'
 while True:
     # Alternate between pressing '2' and '3'
     for key in ['2', '3']:
@@ -174,7 +198,7 @@ while True:
             chat_lines = driver.execute_script("return window.getChatLines();")
 
             if chat_lines:
-                # Read existing chat lines from the JSON file
+                # Read existing chat lines from the JSON file (if needed)
                 if os.path.exists('chat_lines.json'):
                     with open('chat_lines.json', 'r', encoding='utf-8') as file:
                         existing_chat_lines = json.load(file)
@@ -185,14 +209,9 @@ while True:
                 new_chat_lines = remove_duplicates(chat_lines, existing_chat_lines)
 
                 if new_chat_lines:
-                    # Append new chat lines to the existing chat lines
-                     insert_chat_lines_to_db(new_chat_lines)
-
-                    # Save the updated chat lines to the JSON file
-                    # with open('chat_lines.json', 'w', encoding='utf-8') as file:
-                        # json.dump(existing_chat_lines, file, ensure_ascii=False, indent=4)
-
-                     print(f'Added {len(new_chat_lines)} new chat lines.')
+                    # Insert new chat lines into the database
+                    insert_chat_lines_to_db(new_chat_lines)
+                    print(f'Added {len(new_chat_lines)} new chat lines.')
 
             # Wait for the next 30 seconds to check chat lines again
             time.sleep(check_interval)
