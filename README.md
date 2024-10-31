@@ -42,5 +42,20 @@ sudo cp eng* /usr/share/tesseract-ocr/5/tessdata/.
 python themainone.py
 # now we have some logs
 # get coordinates of logs using AI
+# you have to do it in wsl
 python combined.py
+```
+
+
+## Raspberry Pi
+
+```bash
+ wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux-aarch64.tar.gz
+ tar -xvzf geckodriver-v0.33.0-linux-aarch64.tar.gz
+ sudo mv geckodriver /usr/local/bin/
+ sudo chmod +x /usr/local/bin/geckodriver
+ geckodriver --version
+ sudo apt update
+ sudo apt install firefox-esr
+
 ```

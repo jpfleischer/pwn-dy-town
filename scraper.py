@@ -28,17 +28,26 @@ for cookie in cookies:
     except Exception as e:
         print(f"Error adding cookie: {cookie['name']}, {e}")
 
-# Navigate to the specific page (search query)
+# Navigate to the specific page
 driver.get('https://pony.town/')
 
-# Allow time for the page to load
-WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'btn-success')))
+# Allow time for the page to load and check for the update panel
+try:
+    # Wait for the update panel to appear and find the close button if it exists
+    close_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, 'btn-close'))
+    )
+    close_button.click()
+    print("Closed the update panel.")
+except Exception:
+    print("Update panel not found; proceeding.")
 
-# Locate the button by its class name and text content
-button = WebDriverWait(driver, 20).until(
+time.sleep(2)
+# Now wait for and click the "Play" button
+play_button = WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'btn-success') and contains(., 'Play')]"))
 )
-button.click()
+play_button.click()
 
 time.sleep(3)
 
