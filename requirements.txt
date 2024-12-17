@@ -1,5 +1,5 @@
 pillow
 pytesseract
-selenium
+selenium==4.26.1
 mysql-connector-python
 pyautogui; sys_platform == "linux"
