@@ -1,5 +1,6 @@
 ```bash
 sudo apt-get update
+sudo apt install libjpeg-dev zlib1g-dev
 sudo apt-get install chromium-chromedriver -y
 pip install selenium
 
