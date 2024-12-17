@@ -1,7 +1,7 @@
 run: stop
 	-docker network create ponynetwork
 	docker build -t db-image .
-	docker run --name db -v mysql-data:/var/lib/mysql \
+	docker run --platform linux/arm64/v8 --name db -v mysql-data:/var/lib/mysql \
 	--network=ponynetwork \
 	-p 3306:3306 -d db-image
 
@@ -17,3 +17,6 @@ logs:
 
 exec-script:
 	docker exec -it db //bin//bash -c "mysql -u root -prootpassword mydatabase < /docker-entrypoint-initdb.d/script.sql"
+
+clean: stop
+	-docker volume rm mysql-data
