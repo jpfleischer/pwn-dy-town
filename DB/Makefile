@@ -20,3 +20,8 @@ exec-script:
 
 clean: stop
 	-docker volume rm mysql-data
+
+# New recipe to query the SQL database:
+query:
+	@echo "Displaying all rows from 'messages' table..."
+	docker exec -it db /bin/sh -c "mysql -u root -prootpassword -e 'SELECT * FROM messages;' mydatabase"

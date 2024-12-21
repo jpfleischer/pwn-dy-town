@@ -18,7 +18,7 @@ try:
     os.environ['DISPLAY'] = ':1'
     import pyautogui
 except ImportError:
-    print("PyAutoGUI is required for Linux screenshots. Install it via 'pip install pyautogui'.")
+    print("PyAutoGUI is required for Linux screenshots. Install it via 'pip install pyautogui'.", flush=True)
 
 def get_next_output_filename(directory, prefix):
     # Ensure the directory exists
@@ -36,7 +36,7 @@ def take_screenshot(output_file, window_title=None):
         # Windows-specific screenshot using win32gui
         hwnd = win32gui.FindWindow(None, window_title)
         if not hwnd:
-            print(f"Window with title '{window_title}' not found.")
+            print(f"Window with title '{window_title}' not found.", flush=True)
             return
 
         # Set the process to be DPI aware to handle high DPI displays
@@ -58,7 +58,7 @@ def take_screenshot(output_file, window_title=None):
 
         # Capture the window
         result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 3)
-        print(result)
+        print(result, flush=True)
 
         bmpinfo = saveBitMap.GetInfo()
         bmpstr = saveBitMap.GetBitmapBits(True)
@@ -76,15 +76,15 @@ def take_screenshot(output_file, window_title=None):
         if result == 1:
             # PrintWindow Succeeded
             im.save(output_file)
-            print(f"Screenshot saved to {output_file}")
+            print(f"Screenshot saved to {output_file}", flush=True)
         else:
-            print("Failed to capture the window.")
+            print("Failed to capture the window.", flush=True)
 
     elif platform.system() == "Linux":
         # Linux-specific screenshot using PyAutoGUI
         screenshot = pyautogui.screenshot()
         screenshot.save(output_file)
-        print(f"Screenshot saved to {output_file}")
+        print(f"Screenshot saved to {output_file}", flush=True)
 
 def find_window_with_title_partials(partials):
     if platform.system() == "Windows":
@@ -98,7 +98,7 @@ def find_window_with_title_partials(partials):
         win32gui.EnumWindows(callback, hwnds)
         return hwnds[0] if hwnds else None
     elif platform.system() == "Linux":
-        print("Linux version does not support partial title window finding.")
+        print("Linux version does not support partial title window finding.", flush=True)
         return None
 
 def main():
@@ -116,7 +116,7 @@ def main():
                 # Take the screenshot
                 take_screenshot(output_file, win32gui.GetWindowText(hwnd))
             else:
-                print("Window with 'Pony Town' and 'Mozilla Firefox' not found!")
+                print("Window with 'Pony Town' and 'Mozilla Firefox' not found!", flush=True)
 
         elif platform.system() == "Linux":
             # Direct screenshot on Linux
