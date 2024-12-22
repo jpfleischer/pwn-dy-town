@@ -36,6 +36,9 @@ if platform.system() == 'Linux':
     # Set up the Chrome WebDriver with the service parameter and options
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
+    # driver.maximize_window()
+    driver.set_window_size(1920, 1080)
+
 
 else:
     # Use Firefox WebDriver
@@ -51,7 +54,7 @@ for cookie in cookies:
     try:
         driver.add_cookie(cookie)
     except Exception as e:
-        print(f"Error adding cookie: {cookie['name']}, {e}")
+        print(f"Error adding cookie: {cookie['name']}, {e}", flush=True)
 
 # Navigate to the specific page
 driver.get('https://pony.town/')
@@ -63,9 +66,9 @@ try:
         EC.element_to_be_clickable((By.CLASS_NAME, 'btn-close'))
     )
     close_button.click()
-    print("Closed the update panel.")
+    print("Closed the update panel.", flush=True)
 except Exception:
-    print("Update panel not found; proceeding.")
+    print("Update panel not found; proceeding.", flush=True)
 
 time.sleep(2)
 # Now wait for and click the "Play" button
@@ -77,7 +80,7 @@ play_button.click()
 time.sleep(3)
 
 # Perform additional setup steps
-print('going to click settings now')
+print('going to click settings now', flush=True)
 settings_button = WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable((By.XPATH, "//ui-button[@title='Settings' and @aria-haspopup='true']"))
 )
@@ -92,18 +95,18 @@ file_input = WebDriverWait(driver, 20).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
 )
 time.sleep(1)
-print('sending file path now')
+print('sending file path now', flush=True)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(current_dir, "pony-town-settings.json")
 file_input.send_keys(file_path)
-print('file path sent')
+print('file path sent', flush=True)
 
 ok_button = WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable((By.XPATH, "//button[@class='btn btn-wide btn-outline-secondary ms-2' and contains(text(), 'OK')]"))
 )
 ok_button.click()
-print('OK button clicked')
+print('OK button clicked', flush=True)
 
 time.sleep(1)
 
@@ -149,17 +152,17 @@ def press_key(key):
     actions = ActionChains(driver)
     actions.send_keys(key)
     actions.perform()
-    print(f'Pressed {key}')
+    print(f'Pressed {key}', flush=True)
 
-# Duration for each interval (14 minutes = 840 seconds)
-interval_duration = 14 * 60
+# Duration for each interval (9 minutes = 840 seconds)
+interval_duration = 9 * 60
 check_interval = 30  # Interval to check chat lines (30 seconds)
 
 # Database connection details
 db_config = {
     'user': 'myuser',
     'password': 'mypassword',
-    'host': 'localhost',
+    'host': 'db',
     'database': 'mydatabase'
 }
 
@@ -182,7 +185,7 @@ def insert_chat_lines_to_db(chat_lines):
 
         connection.commit()
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"Error: {err}", flush=True)
     finally:
         if connection.is_connected():
             cursor.close()
@@ -192,7 +195,7 @@ def insert_chat_lines_to_db(chat_lines):
 while True:
     # Alternate between pressing '2' and '3'
     for key in ['2', '3']:
-        # 14-minute loop
+        # 9-minute loop
         for _ in range(0, interval_duration, check_interval):
             # Retrieve the chat lines collected by the MutationObserver
             chat_lines = driver.execute_script("return window.getChatLines();")
@@ -211,10 +214,10 @@ while True:
                 if new_chat_lines:
                     # Insert new chat lines into the database
                     insert_chat_lines_to_db(new_chat_lines)
-                    print(f'Added {len(new_chat_lines)} new chat lines.')
+                    print(f'Added {len(new_chat_lines)} new chat lines.', flush=True)
 
             # Wait for the next 30 seconds to check chat lines again
             time.sleep(check_interval)
         
-        # After 14 minutes, press the key ('2' or '3')
+        # After 9 minutes, press the key ('2' or '3')
         press_key(key)
