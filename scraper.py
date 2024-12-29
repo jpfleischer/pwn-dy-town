@@ -191,7 +191,7 @@ def insert_chat_lines_to_db(chat_lines):
             cursor.close()
             connection.close()
 
-# Start an infinite loop to alternate between pressing '2' and '3'
+
 while True:
     # Alternate between pressing '2' and '3'
     for key in ['2', '3']:
@@ -200,8 +200,29 @@ while True:
             # Retrieve the chat lines collected by the MutationObserver
             chat_lines = driver.execute_script("return window.getChatLines();")
 
-            if chat_lines:
-                # Read existing chat lines from the JSON file (if needed)
+            if not chat_lines:
+                # If no chat lines, let's see if the "Play" button reappeared
+                print("No chat lines found. Checking for 'Play' button...", flush=True)
+                try:
+                    # Locate button by class btn-success containing text 'Play'
+                    play_button = driver.find_element(
+                        By.XPATH,
+                        "//button[contains(@class, 'btn-success') and contains(., 'Play')]"
+                    )
+                    # if play_button.is_displayed() and play_button.is_enabled():
+                    time.sleep(2)
+                    play_button.click()
+                    print("Clicked 'Play' button again.", flush=True)
+                except Exception as e:
+                    # Either button not found or some other error
+                    print(f"No 'Play' button found or error occurred: {e}", flush=True)
+
+            else:
+                # There are some chat lines
+                # (Optional) You could add a print here for debugging
+                # print(f"Found {len(chat_lines)} chat lines...", flush=True)
+
+                # Read existing chat lines from JSON file (if needed)
                 if os.path.exists('chat_lines.json'):
                     with open('chat_lines.json', 'r', encoding='utf-8') as file:
                         existing_chat_lines = json.load(file)
