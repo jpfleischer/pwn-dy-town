@@ -35,7 +35,8 @@ ENV XAUTHORITY=/root/.Xauthority
 WORKDIR /app
 COPY themainone.py .
 COPY scraper.py .
-COPY overlay overlay
+# COPY overlay overlay
+COPY overlay/*.py /app/overlay/
 
 # 5) Copy your new entrypoint script, then make it executable
 COPY entrypoint.sh /entrypoint.sh
