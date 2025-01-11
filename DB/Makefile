@@ -29,4 +29,5 @@ query:
 
 dump:
 	@echo "Dumping database 'mydatabase' to file 'db_dump.sql'..."
-	docker exec db /bin/sh -c "mysqldump -u root -prootpassword mydatabase" > db_dump.sql
+	docker exec db /bin/sh -c "mysqldump -u root -prootpassword --routines --triggers --events --add-drop-database --databases mydatabase" > db_dump.sql
+
